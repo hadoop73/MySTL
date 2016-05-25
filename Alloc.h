@@ -5,6 +5,8 @@
 #ifndef MYSTL_ALLOC_H
 #define MYSTL_ALLOC_H
 
+#include <cstdlib>
+
 namespace MySTL{
     // ø’º‰≈‰÷√
     class alloc{
