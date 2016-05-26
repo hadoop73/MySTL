@@ -6,7 +6,6 @@
 #define MYSTL_CONSTRUCT_H
 
 #include <new>
-#include <d2d1helper.h>
 
 #include "TypeTraits.h"
 
@@ -39,8 +38,8 @@ namespace MySTL{
     // 区间销毁模板
     template <class ForwardIterator>
     inline void destroy(ForwardIterator first,ForwardIterator last){
-        typedef typename _type_traits<T>::is_POD_type is_POD_type;
-        _destroy(first,last,is_POD_type);
+        typedef typename _type_traits<ForwardIterator>::is_POD_type is_POD_type;
+        _destroy(first,last,is_POD_type());
     }
 
 }

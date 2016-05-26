@@ -6,7 +6,7 @@
 #define TINYSTL_TYPETRAITS_H
 
 namespace MySTL{
-    namespace zstd{
+    //namespace zstd{
 		// 类型萃取主要用于在编译期就能够分配对应的函数
 		// 不同的函数用于显著提高不同情况下的效率
         struct _true_type {};
@@ -240,7 +240,7 @@ namespace MySTL{
 			typedef _true_type		has_trivial_destructor;
 			typedef _true_type		is_POD_type;
 		};
-    }
+    //}
 }
 
 
