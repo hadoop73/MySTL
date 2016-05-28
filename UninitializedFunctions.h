@@ -18,7 +18,7 @@ namespace MySTL{
     template <class InputIterator,class ForwardIterator,class T>
     inline ForwardIterator
     _uninitialized_copy_aux(InputIterator first,InputIterator last,ForwardIterator result,_true_type){
-        return memcpy(result,first,(last - first)* sizeof(*first));
+        return memmove(result,first,(last - first)* sizeof(*first));  // memmove 可以用于同区间
     }
 
     template <class InputIterator,class ForwardIterator,class T>
