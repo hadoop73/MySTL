@@ -12,7 +12,7 @@
 #include <new>
 
 namespace MySTL{
-    template <class T>
+    template <class T,class Alloc>
     class allocator{
     public:
         typedef T           value_type;
@@ -22,49 +22,36 @@ namespace MySTL{
         typedef const T&    const_reference;
         typedef size_t      size_type;
         typedef ptrdiff_t   difference_type;
+
     public:
-        static T *allocate();
-        static T *allocate(size_t n);
-        static void deallocate(T *ptr);
-        static void deallocate(T *ptr,size_t n);
+        static T* allocate() {
+            return static_cast<T *>(Alloc::allocate(sizeof(T)));
+        }
 
-        static void construct(T *ptr);
-        static void construct(T *ptr,const T& value);
-        static void destroy(T *ptr);
+        static T *allocate(size_t n) {
+            assert(n != 0);
+            return static_cast<T *>(Alloc::allocate( sizeof(T)*n ));
+        }
+
+        static void deallocate(T *ptr) {
+            Alloc::deallocate(static_cast<void *>(ptr), sizeof(T));
+        }
+        static void deallocate(T *ptr,size_t n) {
+            assert(n != 0);
+            Alloc::deallocate(static_cast<void *>(ptr), sizeof(T)*n);
+        }
+
+        static void construct(T *ptr) {
+            new(ptr)T();
+        }
+        static void construct(T *ptr, const T& value) {
+            new(ptr)T(value);
+        }
+        static void destroy(T *ptr) {
+            ptr->~T();
+        }
     };
-
-    template <class T>
-    T *allocator<T>::allocate() {
-        return static_cast<T *>(alloc::allocate(sizeof(T)));
-    }
-    template <class T>
-    T *allocator<T>::allocate(size_t n) {
-        assert(n != 0);
-        return static_cast<T *>(alloc::allocate( sizeof(T)*n ));
-    }
-
-    template <class T>
-    void allocator<T>::deallocate(T *ptr) {
-        alloc::deallocate(static_cast<void *>(ptr), sizeof(T));
-    }
-    template <class T>
-    void allocator<T>::deallocate(T *ptr,size_t n) {
-        assert(n != 0);
-        alloc::deallocate(static_cast<void *>(ptr), sizeof(T)*n);
-    }
-
-    template <class T>
-    void allocator<T>::construct(T *ptr) {
-        new(ptr)T();
-    }
-    template <class T>
-    void allocator<T>::construct(T *ptr, const T& value) {
-        new(ptr)T(value);
-    }
-    template <class T>
-    void allocator<T>::destroy(T *ptr) {
-        ptr->~T();
-    }
+    
 }
 
 

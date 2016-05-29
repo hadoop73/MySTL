@@ -11,6 +11,8 @@ using namespace std;
 
 int main() {
 
+    push_back_test();
+    /*
     // 测试 vector 插入数据，扩容问题
     MySTL::vector<int> svec;
     cout << "svec.capacity(): " << svec.capacity() << endl;
@@ -33,7 +35,7 @@ int main() {
     svec.push_back(9);
     cout << "svec.capacity(9): " << svec.capacity() << endl;
     svec.push_back(10);
-    cout << "svec.capacity(10): " << svec.capacity() << endl;
+    cout << "svec.capacity(10): " << svec.capacity() << endl;*/
 
 
     //for (int i = 0; i < 1000000; ++i) {
