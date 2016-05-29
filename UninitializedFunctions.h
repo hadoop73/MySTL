@@ -15,13 +15,13 @@ namespace MySTL{
     /***************************************************************************************/
 
 
-    template <class InputIterator,class ForwardIterator,class T>
+    template <class InputIterator,class ForwardIterator>
     inline ForwardIterator
     _uninitialized_copy_aux(InputIterator first,InputIterator last,ForwardIterator result,_true_type){
-        return memmove(result,first,(last - first)* sizeof(*first));  // memmove 可以用于同区间
+        return (ForwardIterator)memmove(result,first,(last - first)* sizeof(*first));  // memmove 可以用于同区间
     }
 
-    template <class InputIterator,class ForwardIterator,class T>
+    template <class InputIterator,class ForwardIterator>
     inline ForwardIterator
     _uninitialized_copy_aux(InputIterator first,InputIterator last,ForwardIterator result,_false_type){
         int i = 0;

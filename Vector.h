@@ -10,7 +10,7 @@
 #include "UninitializedFunctions.h"
 
 namespace MySTL{
-    template <class T,class Alloc = allocator>
+    template <class T,class Alloc = allocator<T>>
     class vector{
     public:
         typedef T               value_type;
@@ -25,7 +25,7 @@ namespace MySTL{
         iterator    finish;          // 目前空间的尾
         iterator    end_of_storage;  // 可用空间的尾
 
-        typedef Alloc<T>    dataAllocator;
+        typedef Alloc    dataAllocator;
         void insert_aux(iterator position,const T& x);
 
     protected:
@@ -49,9 +49,9 @@ namespace MySTL{
     public:
         iterator begin()    { return start;     }
         iterator end()      { return finish;    }
-        size_type size() const { return size_type(end() - begin());    }
+        size_type size() const { return size_type(finish - start);    }
         size_type capacity() const {
-            return size_type(end_of_storage - begin());
+            return size_type(end_of_storage - start);
         }
         bool empty() const { return begin() == end(); }
         reference operator[](size_type n) { return *(begin() + n); }
@@ -98,12 +98,34 @@ namespace MySTL{
 
     };
 
+    template <class Iterator>
+    Iterator copy_backward(Iterator first,Iterator last,Iterator result){
+        while (last != first) *(--result) = *(--last);
+        return result;
+    }
+
     template <class T,class Alloc>
     void vector<T,Alloc>::insert_aux(iterator position, const T &x) {
         if (finish != end_of_storage){
-            construct(finish,*(finish - 1));
+            copy_backward(position,finish,finish+1);
+            construct(position,x);
             finish++;
-            uninitialized_copy()
+        } else{  // 无备用空间的分配
+            const size_type len = size();
+            const size_type new_size = len>0?2*len:1;
+            iterator new_start = dataAllocator::allocate(new_size);
+            uninitialized_copy(start,position,new_start);
+            auto temp = position - start;
+            construct(new_start + temp,x);
+            uninitialized_copy(position,finish,new_start + temp + 1);
+
+            destroy(begin(),end());
+            deallocate();
+
+            start = new_start;
+            end_of_storage = start + new_size;
+            finish = start + len + 1;
+
         }
     }
 

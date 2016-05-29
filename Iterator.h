@@ -72,7 +72,7 @@ namespace MySTL{
     // 获取迭代器 value_type 类型
     template <class Iterator>
     inline typename iterator_traits<Iterator>::value_type*
-    value_type(const Iterator&){
+    value_type(const Iterator){
         return static_cast<typename iterator_traits<Iterator>::value_type *>(0);
     }
 
