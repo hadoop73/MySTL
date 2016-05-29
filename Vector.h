@@ -113,11 +113,18 @@ namespace MySTL{
         } else{  // 无备用空间的分配
             const size_type len = size();
             const size_type new_size = len>0?2*len:1;
-            iterator new_start = dataAllocator::allocate(new_size);
-            uninitialized_copy(start,position,new_start);
-            auto temp = position - start;
-            construct(new_start + temp,x);
-            uninitialized_copy(position,finish,new_start + temp + 1);
+            iterator new_start;
+            try {
+                new_start = dataAllocator::allocate(new_size);
+                uninitialized_copy(start,position,new_start);
+                auto temp = position - start;
+                construct(new_start + temp,x);
+                uninitialized_copy(position,finish,new_start + temp + 1);
+            }catch(...) {
+                destroy(new_start,new_start + new_size);
+                dataAllocator::deallocate(new_start,new_size) ;
+                throw ;
+            }
 
             destroy(begin(),end());
             deallocate();

@@ -9,16 +9,16 @@
 #include "malloc_alloc.h"
 
 namespace MySTL{
-    // 空间配置
+    // ???????
     class alloc{
     private:
-        enum EAlign{ ALIGN = 8}; // 小型区块的上调边界
-        enum EMaxBytes{ MAXBYTES = 128};  // 小型区块的上限
-        enum ENFreeLists{ NFREELISTS = (EMaxBytes::MAXBYTES/EAlign::ALIGN)};  // free-lists 的个数
-        enum ENObjs{ NOBJS = 20}; // 每次分配的空间个数
+        enum EAlign{ ALIGN = 8}; // С?????????????
+        enum EMaxBytes{ MAXBYTES = 128};  // С???????????
+        enum ENFreeLists{ NFREELISTS = (EMaxBytes::MAXBYTES/EAlign::ALIGN)};  // free-lists ?????
+        enum ENObjs{ NOBJS = 20}; // ??η?????????
 
     private:
-        // free-lists 节点
+        // free-lists ???
         union obj{
             union obj *next;
             char client[1];
@@ -26,22 +26,22 @@ namespace MySTL{
 
         static obj *free_list[ENFreeLists::NFREELISTS];
     private:
-        static char *start_free;   // 内存池起始位置
-        static char *end_free;     // 内存池结束位置
+        static char *start_free;   // ???????λ??
+        static char *end_free;     // ???????λ??
         static size_t heap_size;
     private:
-        // 将bytes上调至8的倍数
+        // ??bytes?????8?????
         static size_t ROUND_DP(size_t bytes){
             return (bytes+EAlign::ALIGN-1)&~(EAlign::ALIGN-1);
         }
-        // 根据区块大小，返回第n号free-list，n从0开始算
+        // ?????????С???????n??free-list??n??0?????
         static size_t FREELIST_INDEX(size_t bytes){
             return (bytes+EAlign::ALIGN-1)/EAlign::ALIGN-1;
         }
-        // 返回一个大小为n的对象
+        // ?????????С?n?????
         static void *refill(size_t n);
-        // 配置一大块空间，可容纳nobjs个大小为size的区块
-        // 如果配置nobjs个区块有所不便，nobjs可能会减小
+        // ????????????????nobjs????С?size??????
+        // ???????nobjs??????????????nobjs??????С
         static char *chunk_alloc(size_t size,size_t &nobjs);
 
     public:
@@ -78,28 +78,28 @@ namespace MySTL{
         if (bytes <= 0){
             return 0;
         }
-        if (bytes>EMaxBytes::MAXBYTES){ // 大于128byte，一次性分配空间
+        if (bytes>EMaxBytes::MAXBYTES){ // ????128byte????????????
             return malloc_alloc::allocate(bytes);
         }
-        // 在二级配置空间的链表中取未分配块
+        // ???????????????????δ?????
         size_t index = FREELIST_INDEX(bytes);
         obj *list = free_list[index];
-        if (list){  // free_list 中还用空间分配
+        if (list){  // free_list ?л????????
             free_list[index] = list->next;
             return list;
-        } else{ // free_list 空间不足时，从内存池重新分配空间
+        } else{ // free_list ?????????????????·?????
             return refill((ROUND_DP(bytes)));
         }
     }
 
     void *alloc::refill(size_t bytes) {
-        size_t nobjs = ENObjs::NOBJS;  // 尝试一次分配 20个
+        size_t nobjs = ENObjs::NOBJS;  // ??????η??? 20??
         char *chunk = chunk_alloc(bytes,nobjs);
         obj **my_free_list = 0;
         obj *result = 0;
         obj *current_obj = 0,*next_obj = 0;
 
-        if (nobjs == 1){  // 最后只能分配一个块
+        if (nobjs == 1){  // ??????????????
             return chunk;
         } else{
             my_free_list = free_list + FREELIST_INDEX(bytes);
@@ -133,7 +133,7 @@ namespace MySTL{
             result = start_free;
             start_free += total_size;
             return result;
-        } else{ // 最后连一个块都无法申请，先处理零碎的块
+        } else{ // ?????????鶼??????????????????
             if (bytes_left > 0){
                 obj ** my_free_list = free_list + FREELIST_INDEX(bytes_left);
                 ((obj *)start_free)->next = *my_free_list;
