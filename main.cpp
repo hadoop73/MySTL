@@ -7,11 +7,13 @@
 #include "Construct.h"
 #include "UninitializedFunctions.h"
 
+#include "Test/ListTest.h"
+
 using namespace std;
 
 int main() {
 
-    push_back_test();
+    TEST::push_back_test();
     /*
     // 测试 vector 插入数据，扩容问题
     MySTL::vector<int> svec;

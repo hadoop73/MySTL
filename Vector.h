@@ -6,11 +6,12 @@
 #define MYSTL_VECTOR_H
 
 #include "Allocator.h"
+#include "Alloc.h"
 #include "Iterator.h"
 #include "UninitializedFunctions.h"
 
 namespace MySTL{
-    template <class T,class Alloc = allocator<T>>
+    template <class T,class Alloc = alloc>
     class vector{
     public:
         typedef T               value_type;
@@ -25,7 +26,7 @@ namespace MySTL{
         iterator    finish;          // 目前空间的尾
         iterator    end_of_storage;  // 可用空间的尾
 
-        typedef Alloc    dataAllocator;
+        typedef allocator<T,Alloc>    dataAllocator;
         void insert_aux(iterator position,const T& x);
 
     protected:
