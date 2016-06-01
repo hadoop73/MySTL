@@ -134,6 +134,10 @@ namespace MySTL{
             insert(end(),x);
         }
 
+        void push_front(const T& x){
+            insert(begin(),x);
+        }
+
         iterator insert(iterator position,const T& x){
             link_type p = create_node(x);
             p->next = position.node;

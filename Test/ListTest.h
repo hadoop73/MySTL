@@ -14,25 +14,25 @@ namespace TEST {
         MySTL::list<int> l;
         MySTL::list<int>::iterator iter;
 
-        l.push_back(1);
+        l.push_front(1);
         cout << "size : " << l.size() << endl;
         for (iter = l.begin(); iter != l.end(); iter++)
             cout << *iter << " ";
         cout << endl;
 
-        l.push_back(2);
+        l.push_front(2);
         cout << "size : " << l.size() << endl;
         for (iter = l.begin(); iter != l.end(); iter++)
             cout << *iter << " ";
         cout << endl;
 
-        l.push_back(3);
+        l.push_front(3);
         cout << "size : " << l.size() << endl;
         for (iter = l.begin(); iter != l.end(); iter++)
             cout << *iter << " ";
         cout << endl;
 
-        l.push_back(4);
+        l.push_front(4);
         cout << "size : " << l.size() << endl;
         for (iter = l.begin(); iter != l.end(); iter++)
             cout << *iter << " ";
