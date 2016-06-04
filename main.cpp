@@ -1,19 +1,13 @@
 #include <iostream>
-#include <memory>
 
-#include "Vector.h"
-#include "Alloc.h"
-#include "Allocator.h"
-#include "Construct.h"
-#include "UninitializedFunctions.h"
 
-#include "Test/ListTest.h"
+#include "Test/RB_Tree_Test.h"
 
 using namespace std;
 
 int main() {
 
-    TEST::push_back_test();
+    TEST::rb_insert_test();
     /*
     // 测试 vector 插入数据，扩容问题
     MySTL::vector<int> svec;
