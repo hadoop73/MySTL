@@ -285,6 +285,14 @@ namespace MySTL{
 
     public:
         pair<iterator,bool> insert_unique(const value_type& v);
+        void erase(iterator position);
+        void erase(iterator first, iterator last);
+        void clear(){
+            if (node_count != 0){
+
+            }
+        }
+
 
     public:
         iterator begin(){ return leftmost();    }
@@ -293,6 +301,68 @@ namespace MySTL{
 
     };
 
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    void
+    typename rb_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(iterator position) {
+        link_type y = (link_type) rb_tree_rebalance_for_erase(position.node,
+                                                                header->parent,
+                                                                header->left,
+                                                                header->right);
+
+    }
+
+    inline rb_tree_node_base*
+    rb_tree_rebalance_for_erase(rb_tree_node_base* z,
+                                rb_tree_node_base*& root,
+                                rb_tree_node_base*& leftmost,
+                                rb_tree_node_base*& rightmost){
+        rb_tree_node_base* y = z;
+        rb_tree_node_base* x = 0;
+        rb_tree_node_base* x_parent = 0;
+        if (y->left == 0)
+            x = y->right;
+        else if (y->right == 0)
+            x = y->left;
+        else {
+            y = y->right;
+            while (y->left != 0){
+                y = y->left;
+            }
+            x = y->right;  // y 的下一个节点
+        }
+        // y != z 则调整 y 到 z 的位置
+        if (y != z){
+            z->left->parent = y;
+            y->left = z->left;
+            if (y != z->right){
+                x_parent = y->parent;
+                if (x) x->parent = y->parent;
+                y->parent->left = x;
+                y->right = z->right;
+                z->parent->right = y;
+            } else
+                x_parent = y;
+            if (z == root)
+                root = y;
+            else if (z == z->parent->left)
+                z->parent->left = y;
+            else
+                z->parent->right = y;
+            y->parent = z->parent;
+            rb_tree_color_type t = y->color;
+            y->color = z->color;
+            z->color = t;
+            y = z;
+        } else{  // y == z
+            x_parent = y->parent;
+            if (z == root)
+                root = x;
+            else if (z == z->parent->left)
+                z->parent->left = x;
+            else
+                z->parent->right = x;
+        }
+    }
 
 
     template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
