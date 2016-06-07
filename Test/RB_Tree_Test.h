@@ -14,11 +14,10 @@ namespace TEST{
 
     template <class T>
     void rb_erase_test(T itree){
+            itree.erase(8);
             auto start = itree.begin();
             auto end = itree.end();
-            auto s = ++start;
-            itree.erase(s);
-            start = itree.begin();
+
             for (;start != end;start++){
                     cout << *start << "  ";
             }
@@ -58,8 +57,8 @@ namespace TEST{
         }
         cout << endl;
 
-        rb_count_test(itree);
-        //rb_erase_test(itree);
+        //rb_count_test(itree);
+        rb_erase_test(itree);
     }
 }
 

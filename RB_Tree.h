@@ -370,7 +370,7 @@ namespace MySTL{
         void init(){
             header = get_node();
             color(header) = rb_tree_red;
-            cout << "init"<<endl;
+            //cout << "init"<<endl;
             root() = 0;
             leftmost() = header;
             rightmost() = header;
@@ -583,7 +583,15 @@ namespace MySTL{
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
     typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const Key& x) {
-        return 1;
+        pair<iterator,iterator> p = equal_range(x);
+        size_type n = 0;
+        iterator first = p.first;
+        iterator seceond = p.second;
+        for (;first != seceond; first++){
+            if(!key_compare(x,key(first.node)))
+                n++;
+        }
+        return n;
     }
 
 
