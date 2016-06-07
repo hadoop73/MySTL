@@ -145,14 +145,15 @@ namespace MySTL{
         rb_tree_node_base* y = x->right;
         x->right = y->left;
         if (y->left)  y->left->parent = x;
-        y->left = x;
+        y->parent = x->parent;
+
         if (x == root)
             root = y;
-        else if (x = x->parent->left)
+        else if (x == x->parent->left) // bug
             x->parent->left = y;
         else
             x->parent->right = y;
-        y->parent = x->parent;
+        y->left = x;
         x->parent = y;
     }
 
@@ -160,14 +161,15 @@ namespace MySTL{
         rb_tree_node_base* y = x->left;
         x->left = y->right;
         if (y->right)   y->right->parent = x;
-        y->right = x;
         y->parent = x->parent;
+
         if (x == root)
             root = y;
-        else if (x == x->parent->left)
-            x->parent->left = y;
-        else
+        else if (x == x->parent->right)
             x->parent->right = y;
+        else
+            x->parent->left = y;
+        y->right = x;
         x->parent = y;
     }
 

@@ -44,8 +44,8 @@ namespace TEST{
 
         itree.insert_unique(11);
 
-        itree.insert_unique(13);
-        itree.insert_unique(12);
+        ///itree.insert_unique(13);
+        //itree.insert_unique(12);
 
         cout  << "size :" << itree.size() << endl;
         auto itr1 = itree.begin();
@@ -54,7 +54,7 @@ namespace TEST{
         MySTL::rb_tree_base_iterator rb;
         for (;itr1 != itr2; ++itr1){
             //rb = MySTL::rb_tree_base_iterator(itr1);
-            cout << *itr1 << "  ";
+            cout << *itr1 << "  "<<endl;
         }
         cout << endl;
 

@@ -74,3 +74,24 @@ inline void rb_tree_rebalance(rb_tree_node_base* x,rb_tree_node_base*& root){
     };
 ```
 
+##  迭代器递增/递减
+```cpp
+// 底层的 operator++，符合中序遍历
+void increment(){
+    if(node->right != 0){  // 迭代器左子树存在，则获取左子树的最小值
+           node = node->right;
+           while (node->left != 0){
+                 node = node->left;
+           }
+    } else{ // 左子树不存在
+           base_ptr y = node->parent;
+           while (node == y->right){ // 是否是在右子树，只有在左子树时，才能找到比自己大的节点
+                 node = y;
+                 y = y->parent;
+           }
+           if (node->right != y) // 用于判断是否为根节点
+                node = y;
+    }
+}
+```
+
