@@ -418,13 +418,20 @@ namespace MySTL{
     public:
         pair<iterator,bool> insert_unique(const value_type& v);
         void erase(iterator position);
-        void erase(const value_type& x);
+        size_type erase(const key_type& x);
         void erase(iterator first, iterator last);
         void clear(){
             if (node_count != 0){
 
             }
         }
+
+    public:              // set operation
+        iterator find(const key_type& x);
+        size_type count(const key_type& x) const;
+        iterator lower_bound(const key_type& x);
+        iterator upper_bound(const key_type& x);
+        pair<iterator,iterator> equal_range(const key_type& x);
 
     public:
         iterator begin(){ return leftmost();    }
@@ -445,8 +452,8 @@ namespace MySTL{
     }
 
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
-    void
-    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const value_type &x) {
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const key&x) {
 
     }
 
