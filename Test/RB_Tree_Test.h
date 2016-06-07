@@ -11,6 +11,20 @@
 using namespace std;
 
 namespace TEST{
+
+    template <class T>
+    void rb_erase_test(T itree){
+            auto start = itree.begin();
+            auto end = itree.end();
+            auto s = ++start;
+            itree.erase(s);
+            start = itree.begin();
+            for (;start != end;start++){
+                    cout << *start << "  ";
+            }
+            cout << endl;
+    }
+
     void rb_insert_test(){
         MySTL::rb_tree<int,int,_Identity<int>,less<int>> itree;
         cout << "Size: " << itree.size() << endl;
@@ -39,6 +53,7 @@ namespace TEST{
         }
         cout << endl;
 
+        rb_erase_test(itree);
     }
 }
 

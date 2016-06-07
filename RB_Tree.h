@@ -139,6 +139,200 @@ namespace MySTL{
         return x.node != y.node;
     }
 
+    inline void _rb_tree_rotate_left(rb_tree_node_base* x,rb_tree_node_base*& root){
+        // x 为旋转点
+        // root 为引用变量，引用的是 rb_tree_node_base* 类型变量
+        rb_tree_node_base* y = x->right;
+        x->right = y->left;
+        if (y->left)  y->left->parent = x;
+        y->left = x;
+        if (x == root)
+            root = y;
+        else if (x = x->parent->left)
+            x->parent->left = y;
+        else
+            x->parent->right = y;
+        y->parent = x->parent;
+        x->parent = y;
+    }
+
+    inline void _rb_tree_rotate_right(rb_tree_node_base* x,rb_tree_node_base*& root){
+        rb_tree_node_base* y = x->left;
+        x->left = y->right;
+        if (y->right)   y->right->parent = x;
+        y->right = x;
+        y->parent = x->parent;
+        if (x == root)
+            root = y;
+        else if (x == x->parent->left)
+            x->parent->left = y;
+        else
+            x->parent->right = y;
+        x->parent = y;
+    }
+
+    inline rb_tree_node_base*
+    rb_tree_rebalance_for_erase(rb_tree_node_base* z,
+                                rb_tree_node_base*& root,
+                                rb_tree_node_base*& leftmost,
+                                rb_tree_node_base*& rightmost){
+        rb_tree_node_base* y = z;
+        rb_tree_node_base* x = 0;
+        rb_tree_node_base* x_parent = 0;
+        if (y->left == 0)
+            x = y->right;
+        else if (y->right == 0)
+            x = y->left;
+        else {
+            y = y->right;
+            while (y->left != 0){
+                y = y->left;
+            }
+            x = y->right;  // y 的下一个节点
+        }
+        // y != z 则调整 y 到 z 的位置
+        if (y != z){
+            z->left->parent = y;
+            y->left = z->left;
+            if (y != z->right){
+                x_parent = y->parent;
+                if (x) x->parent = y->parent;
+                y->parent->left = x;
+                y->right = z->right;
+                z->parent->right = y;
+            } else
+                x_parent = y;
+            if (z == root)
+                root = y;
+            else if (z == z->parent->left)
+                z->parent->left = y;
+            else
+                z->parent->right = y;
+            y->parent = z->parent;
+            rb_tree_color_type t = y->color;
+            y->color = z->color;
+            z->color = t;
+            y = z;
+        } else{  // y == z
+            x_parent = y->parent;
+            if (x) x->parent = y->parent;
+            if (z == root)
+                root = x;
+            else if (z == z->parent->left)
+                z->parent->left = x;
+            else
+                z->parent->right = x;
+            if (leftmost == z)
+            if (z->right == 0)
+                leftmost = z->parent;
+            else
+                leftmost = rb_tree_node_base::minimum(x);
+            if (rightmost == z)
+            if (z->left == 0)
+                rightmost = z->parent;
+            else
+                rightmost = rb_tree_node_base::maximum(x);
+        }
+        if (y->color != rb_tree_red){
+            while (x != root && (x == 0 || x->color == rb_tree_black)){
+                if (x == x_parent->left){
+                    rb_tree_node_base* w = x_parent->right;
+                    if (w->color == rb_tree_red){
+                        w->color = rb_tree_black;
+                        x_parent->color = rb_tree_red;
+                        _rb_tree_rotate_left(x_parent,root);
+                        w = x_parent->right;
+                    }
+                    if ((w->left == 0 || w->left->color == rb_tree_black)&&
+                        (w->right == 0 || w->right->color == rb_tree_black)){
+                        w->color = rb_tree_red;  // 相当于把 w 也删除,这样 x_parent 两边黑色是平衡的,只要继续处理 x_parent
+                        x = x_parent;
+                        x_parent = x_parent->parent;
+                    } else{
+                        if (w->right == 0 || w->right->color == rb_tree_black){
+                            if (w->left) w->left->color = rb_tree_black;
+                            w->color = rb_tree_red;
+                            _rb_tree_rotate_right(w,root);
+                            w = x_parent->right;
+                        }
+                        w->color = x_parent->color; // 相当于把 w 子节点中的红色变成黑色补充到被删除的一边
+                        x_parent->color = rb_tree_black;
+                        if (w->right) w->right->color = rb_tree_black;
+                        _rb_tree_rotate_left(x_parent,root);
+                        break;
+                    }
+                }else{ // x == x_parent->right
+                    rb_tree_node_base* w = x_parent->left;
+                    if (w->color == rb_tree_red){
+                        w->color = rb_tree_black;
+                        x_parent->color = rb_tree_red;
+                        _rb_tree_rotate_right(x_parent,root);
+                        w = x_parent->left;
+                    }
+                    if ((w->right == 0 || w->right->color == rb_tree_black) &&
+                        (w->left == 0 || w->left->color == rb_tree_black)){
+                        x->color = rb_tree_red;
+                        x = x_parent;
+                        x_parent = x_parent->parent;
+                    } else{
+                        if (w->left == 0 || w->left->color == rb_tree_black){
+                            if (w->right)  w->right->color = rb_tree_black;
+                            w->color = rb_tree_red;
+                            _rb_tree_rotate_left(w,root);
+                            w = x_parent->left;
+                        }
+                        w->color = x_parent->color;
+                        x_parent->color = rb_tree_black;
+                        if (w->left) w->left->color = rb_tree_black;
+                        _rb_tree_rotate_right(x_parent,root);
+                        break;
+                    }
+                }
+                if (x) x->color = rb_tree_black;
+            }
+            return y;
+        }
+    }
+
+
+    inline void rb_tree_rebalance(rb_tree_node_base* x,rb_tree_node_base*& root){
+        x->color = rb_tree_red;
+        while (x != root && x->parent->color == rb_tree_red){
+            if (x->parent == x->parent->parent->left){
+                rb_tree_node_base* y = x->parent->parent->right;
+                if (y && y->color == rb_tree_red){
+                    y->color = rb_tree_black;
+                    x->parent->color = rb_tree_black;
+                    x->parent->parent->color = rb_tree_red;
+                    x = x->parent->parent;
+                } else{
+                    if (x == x->parent->right){
+                        x = x->parent;
+                        _rb_tree_rotate_left(x,root);
+                    }
+                    x->parent->parent->color = rb_tree_red;
+                    x->parent->color = rb_tree_black;
+                    _rb_tree_rotate_right(x->parent,root);
+                }
+            } else{
+                rb_tree_node_base* y = x->parent->parent->left;
+                if (y->color == rb_tree_red){
+                    y->color = rb_tree_black;
+                    x->parent->color = rb_tree_black;
+                    x->parent->parent->color = rb_tree_red;
+                    x = x->parent->parent->parent;
+                } else{
+                    if (x == x->parent->left){
+                        x = x->parent;
+                        _rb_tree_rotate_right(x,root);
+                    }
+                    x->parent->color = rb_tree_black;
+                    x->parent->parent->color = rb_tree_red;
+                    _rb_tree_rotate_left(x->parent,root);
+                }
+            }
+        }
+    }
 
     template <class Key, class Value, class KeyOfValue, class Compare, class Alloc = alloc>
     class rb_tree{
@@ -221,88 +415,16 @@ namespace MySTL{
             return (color_type&) (link_type(x))->color;
         }
 
-
-        void _rb_tree_rotate_left(rb_tree_node_base* x,rb_tree_node_base*& root){
-            // x 为旋转点
-            // root 为引用变量，引用的是 rb_tree_node_base* 类型变量
-            rb_tree_node_base* y = x->right;
-            x->right = y->left;
-            if (y->left)  y->left->parent = x;
-            y->left = x;
-            if (x == root)
-                root = y;
-            else if (x = x->parent->left)
-                x->parent->left = y;
-            else
-                x->parent->right = y;
-            y->parent = x->parent;
-            x->parent = y;
-        }
-
-        void _rb_tree_rotate_right(rb_tree_node_base* x,rb_tree_node_base*& root){
-            rb_tree_node_base* y = x->left;
-            x->left = y->right;
-            if (y->right)   y->right->parent = x;
-            y->right = x;
-            y->parent = x->parent;
-            if (x == root)
-                root = y;
-            else if (x == x->parent->left)
-                x->parent->left = y;
-            else
-                x->parent->right = y;
-            x->parent = y;
-        }
-
-        void rb_tree_rebalance(rb_tree_node_base* x,rb_tree_node_base*& root){
-            x->color = rb_tree_red;
-            while (x != root && x->parent->color == rb_tree_red){
-                if (x->parent == x->parent->parent->left){
-                    rb_tree_node_base* y = x->parent->parent->right;
-                    if (y && y->color == rb_tree_red){
-                        y->color = rb_tree_black;
-                        x->parent->color = rb_tree_black;
-                        x->parent->parent->color = rb_tree_red;
-                        x = x->parent->parent;
-                    } else{
-                        if (x == x->parent->right){
-                            x = x->parent;
-                            _rb_tree_rotate_left(x,root);
-                        }
-                        x->parent->parent->color = rb_tree_red;
-                        x->parent->color = rb_tree_black;
-                        _rb_tree_rotate_right(x->parent,root);
-                    }
-                } else{
-                    rb_tree_node_base* y = x->parent->parent->left;
-                    if (y->color == rb_tree_red){
-                        y->color = rb_tree_black;
-                        x->parent->color = rb_tree_black;
-                        x->parent->parent->color = rb_tree_red;
-                        x = x->parent->parent->parent;
-                    } else{
-                        if (x == x->parent->left){
-                            x = x->parent;
-                            _rb_tree_rotate_right(x,root);
-                        }
-                        x->parent->color = rb_tree_black;
-                        x->parent->parent->color = rb_tree_red;
-                        _rb_tree_rotate_left(x->parent,root);
-                    }
-                }
-            }
-        }
-
     public:
         pair<iterator,bool> insert_unique(const value_type& v);
         void erase(iterator position);
+        void erase(const value_type& x);
         void erase(iterator first, iterator last);
         void clear(){
             if (node_count != 0){
 
             }
         }
-
 
     public:
         iterator begin(){ return leftmost();    }
@@ -313,135 +435,19 @@ namespace MySTL{
 
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
     void
-    typename rb_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(iterator position) {
+    rb_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(iterator position){
         link_type y = (link_type) rb_tree_rebalance_for_erase(position.node,
                                                                 header->parent,
                                                                 header->left,
                                                                 header->right);
-
+        destroy_node(y);
+        node_count--;
     }
 
-    inline rb_tree_node_base*
-    rb_tree_rebalance_for_erase(rb_tree_node_base* z,
-                                rb_tree_node_base*& root,
-                                rb_tree_node_base*& leftmost,
-                                rb_tree_node_base*& rightmost){
-        rb_tree_node_base* y = z;
-        rb_tree_node_base* x = 0;
-        rb_tree_node_base* x_parent = 0;
-        if (y->left == 0)
-            x = y->right;
-        else if (y->right == 0)
-            x = y->left;
-        else {
-            y = y->right;
-            while (y->left != 0){
-                y = y->left;
-            }
-            x = y->right;  // y 的下一个节点
-        }
-        // y != z 则调整 y 到 z 的位置
-        if (y != z){
-            z->left->parent = y;
-            y->left = z->left;
-            if (y != z->right){
-                x_parent = y->parent;
-                if (x) x->parent = y->parent;
-                y->parent->left = x;
-                y->right = z->right;
-                z->parent->right = y;
-            } else
-                x_parent = y;
-            if (z == root)
-                root = y;
-            else if (z == z->parent->left)
-                z->parent->left = y;
-            else
-                z->parent->right = y;
-            y->parent = z->parent;
-            rb_tree_color_type t = y->color;
-            y->color = z->color;
-            z->color = t;
-            y = z;
-        } else{  // y == z
-            x_parent = y->parent;
-            if (x) x->parent = y->parent;
-            if (z == root)
-                root = x;
-            else if (z == z->parent->left)
-                z->parent->left = x;
-            else
-                z->parent->right = x;
-            if (leftmost == z)
-                if (z->right == 0)
-                    leftmost = z->parent;
-                else
-                    leftmost = rb_tree_node_base::minimum(x);
-            if (rightmost == z)
-                if (z->left == 0)
-                    rightmost = z->parent;
-                else
-                    rightmost = rb_tree_node_base::maximum(x);
-        }
-        if (y->color != rb_tree_red){
-            while (x != root && (x == 0 || x->color == rb_tree_black)){
-                if (x == x_parent->left){
-                    rb_tree_node_base* w = x_parent->right;
-                    if (w->color == rb_tree_red){
-                        w->color = rb_tree_black;
-                        x_parent->color = rb_tree_red;
-                        rb_tree_rotate_left(x_parent,root);
-                        w = x_parent->right;
-                    }
-                    if ((w->left == 0 || w->left->color == rb_tree_black)&&
-                        (w->right == 0 || w->right->color == rb_tree_black)){
-                        w->color = rb_tree_red;  // 相当于把 w 也删除,这样 x_parent 两边黑色是平衡的,只要继续处理 x_parent
-                        x = x_parent;
-                        x_parent = x_parent->parent;
-                    } else{
-                        if (w->right == 0 || w->right->color == rb_tree_black){
-                            if (w->left) w->left->color = rb_tree_black;
-                            w->color = rb_tree_red;
-                            rb_tree_rotate_right(w,root);
-                            w = x_parent->right;
-                        }
-                        w->color = x_parent->color; // 相当于把 w 子节点中的红色变成黑色补充到被删除的一边
-                        x_parent->color = rb_tree_black;
-                        if (w->right) w->right->color = rb_tree_black;
-                        rb_tree_left(x_parent,root);
-                        break;
-                    }
-                }else{ // x == x_parent->right
-                    rb_tree_node_base* w = x_parent->left;
-                    if (w->color == rb_tree_red){
-                        w->color = rb_tree_black;
-                        x_parent->color = rb_tree_red;
-                        rb_tree_rotate_right(x_parent,root);
-                        w = x_parent->left;
-                    }
-                    if ((w->right == 0 || w->right->color == rb_tree_black) &&
-                        (w->left == 0 || w->left->color == rb_tree_black)){
-                        x->color = rb_tree_red;
-                        x = x_parent;
-                        x_parent = x_parent->parent;
-                    } else{
-                        if (w->left == 0 || w->left->color == rb_tree_black){
-                            if (w->right)  w->right->color = rb_tree_black;
-                            w->color = rb_tree_red;
-                            rb_tree_rotate_left(w,root);
-                            w = x_parent->left;
-                        }
-                        w->color = x_parent->color;
-                        x_parent->color = rb_tree_black;
-                        if (w->left) w->left->color = rb_tree_black;
-                        rb_tree_rotate_right(x_parent,root);
-                        break;
-                    }
-                }
-                if (x) x->color = rb_tree_black;
-            }
-            return y;
-        }
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    void
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const value_type &x) {
+
     }
 
 
