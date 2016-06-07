@@ -414,10 +414,33 @@ namespace MySTL{
                 }else{ // x == x_parent->right
                     rb_tree_node_base* w = x_parent->left;
                     if (w->color == rb_tree_red){
-
+                        w->color = rb_tree_black;
+                        x_parent->color = rb_tree_red;
+                        rb_tree_rotate_right(x_parent,root);
+                        w = x_parent->left;
+                    }
+                    if ((w->right == 0 || w->right->color == rb_tree_black) &&
+                        (w->left == 0 || w->left->color == rb_tree_black)){
+                        x->color = rb_tree_red;
+                        x = x_parent;
+                        x_parent = x_parent->parent;
+                    } else{
+                        if (w->left == 0 || w->left->color == rb_tree_black){
+                            if (w->right)  w->right->color = rb_tree_black;
+                            w->color = rb_tree_red;
+                            rb_tree_rotate_left(w,root);
+                            w = x_parent->left;
+                        }
+                        w->color = x_parent->color;
+                        x_parent->color = rb_tree_black;
+                        if (w->left) w->left->color = rb_tree_black;
+                        rb_tree_rotate_right(x_parent,root);
+                        break;
                     }
                 }
+                if (x) x->color = rb_tree_black;
             }
+            return y;
         }
     }
 
