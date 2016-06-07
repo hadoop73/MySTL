@@ -26,6 +26,16 @@ namespace MySTL{
         base_ptr    parent;
         base_ptr    left;
         base_ptr    right;
+
+        static base_ptr minimum(base_ptr x){
+            while (x->left != 0) x = x->left;
+            return x;
+        }
+
+        static base_ptr maximum(base_ptr x){
+            while (x->right != 0) x = x->right;
+            return x;
+        }
     };
 
     template <class Value>
@@ -355,12 +365,59 @@ namespace MySTL{
             y = z;
         } else{  // y == z
             x_parent = y->parent;
+            if (x) x->parent = y->parent;
             if (z == root)
                 root = x;
             else if (z == z->parent->left)
                 z->parent->left = x;
             else
                 z->parent->right = x;
+            if (leftmost == z)
+                if (z->right == 0)
+                    leftmost = z->parent;
+                else
+                    leftmost = rb_tree_node_base::minimum(x);
+            if (rightmost == z)
+                if (z->left == 0)
+                    rightmost = z->parent;
+                else
+                    rightmost = rb_tree_node_base::maximum(x);
+        }
+        if (y->color != rb_tree_red){
+            while (x != root && (x == 0 || x->color == rb_tree_black)){
+                if (x == x_parent->left){
+                    rb_tree_node_base* w = x_parent->right;
+                    if (w->color == rb_tree_red){
+                        w->color = rb_tree_black;
+                        x_parent->color = rb_tree_red;
+                        rb_tree_rotate_left(x_parent,root);
+                        w = x_parent->right;
+                    }
+                    if ((w->left == 0 || w->left->color == rb_tree_black)&&
+                        (w->right == 0 || w->right->color == rb_tree_black)){
+                        w->color = rb_tree_red;  // 相当于把 w 也删除,这样 x_parent 两边黑色是平衡的,只要继续处理 x_parent
+                        x = x_parent;
+                        x_parent = x_parent->parent;
+                    } else{
+                        if (w->right == 0 || w->right->color == rb_tree_black){
+                            if (w->left) w->left->color = rb_tree_black;
+                            w->color = rb_tree_red;
+                            rb_tree_rotate_right(w,root);
+                            w = x_parent->right;
+                        }
+                        w->color = x_parent->color; // 相当于把 w 子节点中的红色变成黑色补充到被删除的一边
+                        x_parent->color = rb_tree_black;
+                        if (w->right) w->right->color = rb_tree_black;
+                        rb_tree_left(x_parent,root);
+                        break;
+                    }
+                }else{ // x == x_parent->right
+                    rb_tree_node_base* w = x_parent->left;
+                    if (w->color == rb_tree_red){
+
+                    }
+                }
+            }
         }
     }
 
