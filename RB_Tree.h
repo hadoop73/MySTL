@@ -311,15 +311,15 @@ namespace MySTL{
                     }
                     x->parent->parent->color = rb_tree_red;
                     x->parent->color = rb_tree_black;
-                    _rb_tree_rotate_right(x->parent,root);
+                    _rb_tree_rotate_right(x->parent->parent,root);
                 }
             } else{
                 rb_tree_node_base* y = x->parent->parent->left;
-                if (y->color == rb_tree_red){
+                if (y&&y->color == rb_tree_red){  // bug y==0
                     y->color = rb_tree_black;
                     x->parent->color = rb_tree_black;
                     x->parent->parent->color = rb_tree_red;
-                    x = x->parent->parent->parent;
+                    x = x->parent->parent;
                 } else{
                     if (x == x->parent->left){
                         x = x->parent;
@@ -327,7 +327,7 @@ namespace MySTL{
                     }
                     x->parent->color = rb_tree_black;
                     x->parent->parent->color = rb_tree_red;
-                    _rb_tree_rotate_left(x->parent,root);
+                    _rb_tree_rotate_left(x->parent->parent,root);
                 }
             }
         }
@@ -368,7 +368,7 @@ namespace MySTL{
         void init(){
             header = get_node();
             color(header) = rb_tree_red;
-
+            cout << "init"<<endl;
             root() = 0;
             leftmost() = header;
             rightmost() = header;
@@ -599,9 +599,9 @@ namespace MySTL{
         } // 找到 v 的插入点
         iterator j = iterator(y);
         if (cmp)
-            if (j == begin())
-                return pair<iterator,bool>(_insert(x,y,v), true);
-            else
+            if (j == begin()){
+                return pair<iterator, bool>(_insert(x, y, v), true);
+            }else // 用于判断 可能存在的重复节点，因为
                 --j;
         if (key_compare(key(j.node), KeyOfValue()(v)))
             return pair<iterator,bool>(_insert(x,y,v), true);

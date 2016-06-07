@@ -58,7 +58,7 @@ namespace TEST{
         }
         cout << endl;
 
-        rb_count_test(itree);
+        //rb_count_test(itree);
         //rb_erase_test(itree);
     }
 }
