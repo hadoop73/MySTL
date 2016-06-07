@@ -25,6 +25,11 @@ namespace TEST{
             cout << endl;
     }
 
+    template <class T>
+    void rb_count_test(T itree){
+            cout << itree.count(8) << endl;
+    }
+
     void rb_insert_test(){
         MySTL::rb_tree<int,int,_Identity<int>,less<int>> itree;
         cout << "Size: " << itree.size() << endl;
@@ -53,7 +58,8 @@ namespace TEST{
         }
         cout << endl;
 
-        rb_erase_test(itree);
+        rb_count_test(itree);
+        //rb_erase_test(itree);
     }
 }
 

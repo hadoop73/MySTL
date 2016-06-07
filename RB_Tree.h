@@ -97,8 +97,8 @@ namespace MySTL{
         typedef     Ref         reference;
         typedef     Ptr         pointer;
 
-        typedef rb_tree_iterator<Value, Value&, Value*>     iterator;
-        typedef rb_tree_iterator<const Value, const Value&, const Value*>     const_iterator;
+        typedef rb_tree_iterator<Value, Value&, Value*>                         iterator;
+        typedef rb_tree_iterator<const Value, const Value&, const Value*>       const_iterator;
         typedef rb_tree_iterator<Value, Ref, Ptr>           self;
         typedef rb_tree_node<Value>*    linke_type;
 
@@ -294,7 +294,6 @@ namespace MySTL{
         }
     }
 
-
     inline void rb_tree_rebalance(rb_tree_node_base* x,rb_tree_node_base*& root){
         x->color = rb_tree_red;
         while (x != root && x->parent->color == rb_tree_red){
@@ -332,6 +331,7 @@ namespace MySTL{
                 }
             }
         }
+        root->color = rb_tree_black;
     }
 
     template <class Key, class Value, class KeyOfValue, class Compare, class Alloc = alloc>
@@ -347,14 +347,17 @@ namespace MySTL{
         typedef Key             key_type;
         typedef Value           value_type;
         typedef value_type*     pointer;
+        typedef const pointer   const_pointer;
         typedef size_t          size_type;
         typedef ptrdiff_t       difference_type;
         typedef value_type&     reference;
+        typedef const reference const_reference;
 
         typedef rb_tree_node<Value>*   link_type;
 
     public:
-        typedef rb_tree_iterator<value_type ,reference ,pointer >      iterator;
+        typedef rb_tree_iterator<value_type ,reference ,pointer >                       iterator;
+        typedef rb_tree_iterator<value_type ,const_reference,const_pointer >            const_iterator;
 
     public:
         // allocation/deallocation
@@ -428,17 +431,141 @@ namespace MySTL{
 
     public:              // set operation
         iterator find(const key_type& x);
+        const_iterator find(const key_type& x) const;
         size_type count(const key_type& x) const;
         iterator lower_bound(const key_type& x);
+        const_iterator lower_bound(const key_type& x) const;
         iterator upper_bound(const key_type& x);
+        const_iterator upper_bound(const key_type& x) const;
         pair<iterator,iterator> equal_range(const key_type& x);
+        pair<const_iterator,const_iterator> equal_range(const key_type& x) const;
 
     public:
-        iterator begin(){ return leftmost();    }
+        iterator begin(){ return leftmost();   }
+        const_iterator begin() const{ return const_iterator(leftmost()); }
         iterator end(){ return header;  }
+        const_iterator end() const { return const_iterator(header); }
         size_type size() const { return node_count; }
 
     };
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const key_type &k) {
+        link_type y = header;
+        link_type x = root();
+
+        while (x != 0){
+            if (!key_compare(key(x),k))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        }
+        iterator j = iterator(y);
+        return (j == end() || key_compare(k,key(j.node)))? end():j;
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const key_type &k) const{
+        link_type y = header;
+        link_type x = root();
+
+        while (x != 0){
+            if (!key_compare(key(x),k))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        }
+        const_iterator j = const_iterator(y);
+        return (j == end() || key_compare(k,key(j.node)))? end():j;
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::count(const key_type &k) const {
+        pair<const_iterator,const_iterator> p = equal_range(k);
+        size_type n = 0;
+        const_iterator ss = p.first;
+        const_iterator se = p.second;
+        for (; ss != se ; ss++) {
+            if (!key_compare(k,key(ss.node)))
+                n++;
+        }
+        return n;
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::lower_bound(const key_type &k) {
+        link_type y = header;    //  比 k 大或相等的最小节点
+        link_type x = root();
+
+        while (x != 0)
+            if (!key_compare(key(x),k))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        return iterator(y);
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::lower_bound(const key_type &k) const{
+        link_type y = header;    //  比 k 大或相等的最小节点
+        link_type x = root();
+
+        while (x != 0)
+            if (!key_compare(key(x),k))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        return const_iterator(y);
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::upper_bound(const key_type &k) {
+        link_type y = header;    // 比 k 大的最小节点
+        link_type x = root();
+
+        while (x != 0)
+            if (key_compare(k,key(x)))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        return iterator(y);
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::upper_bound(const key_type &k) const{
+        link_type y = header;    // 比 k 大的最小节点
+        link_type x = root();
+
+        while (x != 0)
+            if (key_compare(k,key(x)))
+                y = x, x = left(x);
+            else
+                x = right(x);
+        return const_iterator(y);
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    pair<typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator,
+         typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator>
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const key_type &k) {
+        return pair<iterator,iterator>(lower_bound(k),upper_bound(k));
+    }
+
+    template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
+    pair<typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator,
+        typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator>
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const key_type &k)const {
+        const_iterator first = lower_bound(k);
+        const_iterator end = upper_bound(k);
+        return pair<const_iterator,const_iterator>(first,end);
+    }
 
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
     void
@@ -453,8 +580,8 @@ namespace MySTL{
 
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
     typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
-    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const key&x) {
-
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const Key& x) {
+        return 1;
     }
 
 
@@ -467,7 +594,7 @@ namespace MySTL{
         bool cmp = true;
         while (x != 0){
             y = x;
-            cmp = key_compare(KeyOfValue()(v),key(x));
+            cmp = key_compare(KeyOfValue()(v),key(x));  //  v 小于 x,则插入左边,否则放在右边
             x = cmp?left(x):right(x);
         } // 找到 v 的插入点
         iterator j = iterator(y);
