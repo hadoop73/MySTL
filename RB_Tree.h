@@ -201,7 +201,7 @@ namespace MySTL{
                 if (x) x->parent = y->parent;
                 y->parent->left = x;
                 y->right = z->right;
-                z->parent->right = y;
+                z->right->parent = y;
             } else
                 x_parent = y;
             if (z == root)
@@ -292,8 +292,8 @@ namespace MySTL{
                 }
                 if (x) x->color = rb_tree_black;
             }
-            return y;
         }
+        return y;
     }
 
     inline void rb_tree_rebalance(rb_tree_node_base* x,rb_tree_node_base*& root){
@@ -588,11 +588,9 @@ namespace MySTL{
         iterator first = p.first;
         iterator seceond = p.second;
 
-        for (;first != seceond; first++){
-            if(!key_compare(x,key(first.node))) {
-                n++;
-                erase(first);
-            }
+        while (first != seceond && !key_compare(x,key(first.node))){
+            n++;
+            erase(first++);
         }
         return n;
     }
