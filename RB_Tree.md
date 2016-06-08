@@ -94,4 +94,53 @@ void increment(){
     }
 }
 ```
+## 删除
+首先，查找要删除节点的下一个节点 x，x可以为null
+* y->left = 0  x = y->right
+* y->right = 0  x = y-> left
+* y 左右字节点都在，x 取下一个节点，可以是大于y的下一个节点
+  也可以是小于y的下一个节点，此时 y 变成要替换 z 的节点
+
+然后，把y替换到z的位置
+```cpp
+if (y != z) {                 // relink y in place of z.  y is z's successor
+    z->left->parent = y;
+    y->left = z->left;
+    if (y != z->right) { // 如果 y 原来是 z 的右子节点，则x_parent需重新设置
+      x_parent = y->parent;
+      if (x) x->parent = y->parent;
+      y->parent->left = x;      // y must be a left child
+      y->right = z->right;
+      z->right->parent = y;
+    }
+    else
+      x_parent = y;
+    if (root == z)
+      root = y;
+    else if (z->parent->left == z)
+      z->parent->left = y;
+    else
+      z->parent->right = y;
+    y->parent = z->parent;
+    __STD::swap(y->color, z->color);
+    y = z;
+    // y now points to node to be actually deleted
+}
+```
+平衡调节，因为删除的是y也就是x以前的父亲，调节从x出发
+* 先判断x的左右，因为需要根据x的兄弟--原来的伯父，来判断
+* 如果伯父节点为red，则x_parent为black，此时y删除，导致
+  左侧少了一个black节点，所以把x_parent左旋，伯父节点到了x_parent位置
+  并且由red变成black，补充缺失的black，因为伯父的左子树，现在在x_parent右子树，也就
+  会比x_parent的左子树多一个black节点，把x_p=red，问题转化到x_p的右节点
+  所以 `w = x_parent->right` 继续处理
+* 如果伯父为black，左右子树也为black或者为null；这是w=red，相当于x_p左右子树都
+  减少一个black，还是平衡的，问题转化为继续调整x_parent， `x = x_parent;`
+* 如果伯父为black，左右子树存在red节点，把这个red变成black来补充删除的black
+  如果伯父的右子节点red，变成black，把w变成x_p的颜色，x_p变成black，再左旋， black节点还是平衡的  调整结束
+  如果伯父的左节点为red，现右旋，变成black，w变成red，和上一种一样
+  也就是现考虑用w的右red来补充black，如果没有，则把左边通过旋转到右侧来处理
+
+总结:删除的调整过程，如果伯父有red节点，则拿来补充，否则继续往上递归
+
 

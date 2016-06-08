@@ -63,7 +63,7 @@ namespace MySTL{
             return;
         }
         size_t index = FREELIST_INDEX(bytes);
-        obj *node = static_cast<obj *>(ptr);
+        obj *node = (obj *)(ptr);
         node->next = free_list[index];
         free_list[index] = node;
     }

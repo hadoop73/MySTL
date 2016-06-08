@@ -570,7 +570,7 @@ namespace MySTL{
     }
 
     template <class Key,class Value,class KeyOfValue,class Compare,class Alloc>
-    void
+    inline void
     rb_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(iterator position){
         link_type y = (link_type) rb_tree_rebalance_for_erase(position.node,
                                                                 header->parent,
@@ -587,9 +587,12 @@ namespace MySTL{
         size_type n = 0;
         iterator first = p.first;
         iterator seceond = p.second;
+
         for (;first != seceond; first++){
-            if(!key_compare(x,key(first.node)))
+            if(!key_compare(x,key(first.node))) {
                 n++;
+                erase(first);
+            }
         }
         return n;
     }
