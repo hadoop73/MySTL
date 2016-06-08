@@ -345,7 +345,7 @@ namespace MySTL{
         typedef rb_tree_color_type      color_type;
         typedef allocator<node,Alloc>   rb_tree_node_allocator;
 
-    protected:
+    public:
         typedef Key             key_type;
         typedef Value           value_type;
         typedef value_type*     pointer;

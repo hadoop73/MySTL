@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <new>
+#include <cstddef> // ptrdiff_t
 
 namespace MySTL{
     template <class T,class Alloc>
