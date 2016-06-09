@@ -1,13 +1,13 @@
 #include <iostream>
 
 
-#include "Test/Set_Test.h"
+#include "Test/Map_Test.h"
 
 using namespace std;
 
 int main() {
 
-    TEST::set_insert_test();
+    TEST::map_insert_test();
     /*
     // 测试 vector 插入数据，扩容问题
     MySTL::vector<int> svec;
