@@ -1,13 +1,13 @@
 #include <iostream>
 
 
-#include "Test/Heap_Test.h"
+#include "Test/Priority_queue_Test.h"
 
 using namespace std;
 
 int main() {
 
-    TEST::heap_test();
+    TEST::priority_queue_test();
 
     return 0;
 }
