@@ -10,6 +10,7 @@
 #include "Construct.h"
 
 #include <cstring>
+#include <bits/algorithmfwd.h>
 
 namespace MySTL{
     /***************************************************************************************/
