@@ -1,13 +1,13 @@
 #include <iostream>
 
 
-#include "Test/DequeTest.h"
+#include "Test/Heap_Test.h"
 
 using namespace std;
 
 int main() {
 
-    TEST::deque_push_test();
+    TEST::heap_test();
 
     return 0;
 }
